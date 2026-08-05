@@ -2,83 +2,79 @@
 
 const API = "/api";
 
-async function request(url, options = {}) {
-  const res = await fetch(`${API}${url}`, {
+async function request(endpoint, options = {}) {
+  const response = await fetch(`${API}${endpoint}`, {
     headers: {
       "Content-Type": "application/json",
     },
     ...options,
   });
 
-  const json = await res.json();
+  const data = await response.json();
 
-  if (!res.ok) {
-    throw new Error(json.message || "Request gagal");
+  if (!response.ok) {
+    throw new Error(data.message || "Terjadi kesalahan");
   }
 
-  return json;
+  return data;
 }
 
-/*
-|--------------------------------------------------------------------------
-| STATUS
-|--------------------------------------------------------------------------
-*/
+/* ===========================
+   STATUS
+=========================== */
 
-export const getStatus = () =>
-  request("/status");
+export async function getStatus() {
+  return request("/status");
+}
 
-/*
-|--------------------------------------------------------------------------
-| HEALTH
-|--------------------------------------------------------------------------
-*/
+/* ===========================
+   HEALTH
+=========================== */
 
-export const getHealth = () =>
-  request("/health");
+export async function getHealth() {
+  return request("/health");
+}
 
-/*
-|--------------------------------------------------------------------------
-| SESSIONS
-|--------------------------------------------------------------------------
-*/
+/* ===========================
+   SESSIONS
+=========================== */
 
-export const getSessions = () =>
-  request("/sessions");
+export async function getSessions() {
+  return request("/sessions");
+}
 
-/*
-|--------------------------------------------------------------------------
-| PAIR
-|--------------------------------------------------------------------------
-*/
+/* ===========================
+   START PAIRING
+=========================== */
 
-export const createPair = (number) =>
-  request("/pair", {
+export async function startPairing(number) {
+  return request("/pair", {
     method: "POST",
     body: JSON.stringify({
-      number
-    })
+      number,
+    }),
   });
+}
 
-/*
-|--------------------------------------------------------------------------
-| GET PAIRING CODE
-|--------------------------------------------------------------------------
-*/
+/* ===========================
+   GET PAIRING CODE
+=========================== */
 
-export const getPairingCode = (sessionId) =>
-  request(`/pairing?sessionId=${encodeURIComponent(sessionId)}`);
+export async function getPairing(sessionId) {
+  return request(
+    `/pairing?sessionId=${encodeURIComponent(sessionId)}`
+  );
+}
 
-/*
-|--------------------------------------------------------------------------
-| LOGOUT
-|--------------------------------------------------------------------------
-*/
+/* ===========================
+   LOGOUT SESSION
+=========================== */
 
-export const logoutSession = (sessionId) =>
-  request("/logout", {
+export async function logoutSession(sessionId) {
+  return request("/logout", {
     method: "POST",
     body: JSON.stringify({
-      sessionId
-    })
+      sessionId,
+    }),
   });
+}
