@@ -1,88 +1,84 @@
-// =========================================
-// API CONFIG
-// =========================================
-const API = "";
+// src/api.js
 
+const API = "/api";
 
-// =========================================
-// GET STATUS
-// =========================================
+async function request(url, options = {}) {
+  const res = await fetch(`${API}${url}`, {
+    headers: {
+      "Content-Type": "application/json",
+    },
+    ...options,
+  });
 
-export async function getStatus() {
-  try {
-    const response = await fetch(`${API}/api/status`, {
-      cache: "no-store",
-    });
+  const json = await res.json();
 
-    if (!response.ok) {
-      throw new Error("Server Error");
-    }
-
-    return await response.json();
-  } catch (err) {
-    console.error(err);
-
-    return {
-      server: "offline",
-      botConnected: false,
-      sessions: [],
-      uptime: {
-        hari: 0,
-        jam: 0,
-        menit: 0,
-        detik: 0,
-      },
-    };
+  if (!res.ok) {
+    throw new Error(json.message || "Request gagal");
   }
+
+  return json;
 }
 
-// =========================================
-// START PAIRING
-// =========================================
+/*
+|--------------------------------------------------------------------------
+| STATUS
+|--------------------------------------------------------------------------
+*/
 
-export async function startPairing(number) {
-  const response = await fetch(`${API}/api/pair`, {
+export const getStatus = () =>
+  request("/status");
+
+/*
+|--------------------------------------------------------------------------
+| HEALTH
+|--------------------------------------------------------------------------
+*/
+
+export const getHealth = () =>
+  request("/health");
+
+/*
+|--------------------------------------------------------------------------
+| SESSIONS
+|--------------------------------------------------------------------------
+*/
+
+export const getSessions = () =>
+  request("/sessions");
+
+/*
+|--------------------------------------------------------------------------
+| PAIR
+|--------------------------------------------------------------------------
+*/
+
+export const createPair = (number) =>
+  request("/pair", {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
     body: JSON.stringify({
-      number,
-    }),
+      number
+    })
   });
 
-  return await response.json();
-}
+/*
+|--------------------------------------------------------------------------
+| GET PAIRING CODE
+|--------------------------------------------------------------------------
+*/
 
-// =========================================
-// GET PAIRING CODE
-// =========================================
+export const getPairingCode = (sessionId) =>
+  request(`/pairing?sessionId=${encodeURIComponent(sessionId)}`);
 
-export async function getPairing(sessionId) {
-  const response = await fetch(
-    `${API}/api/pairing/${encodeURIComponent(sessionId)}`,
-    {
-      cache: "no-store",
-    }
-  );
+/*
+|--------------------------------------------------------------------------
+| LOGOUT
+|--------------------------------------------------------------------------
+*/
 
-  return await response.json();
-}
-
-// =========================================
-// LOGOUT SESSION
-// =========================================
-
-export async function logoutSession(sessionId) {
-  const response = await fetch(`${API}/api/logout`, {
+export const logoutSession = (sessionId) =>
+  request("/logout", {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
     body: JSON.stringify({
-      sessionId,
-    }),
+      sessionId
+    })
   });
-
-  return await response.json();
-}
